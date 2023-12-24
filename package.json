@@ -1,0 +1,13 @@
+{
+  "name": "y",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "node --test src/domino.test.js",
+    "test:watch": "node --test --watch src/domino.test.js"
+  },
+  "author": "",
+  "license": "ISC"
+}
