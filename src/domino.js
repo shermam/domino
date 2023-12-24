@@ -5,13 +5,16 @@
  * @returns {[number, number][]}
  */
 export function generatePieces(size = 7) {
-  return new Array(size).fill(0).flatMap((_, i) =>
-    new Array(size).fill(0).map((_, j) => {
-      /** @type {[number, number]} */
-      const result = [i, j];
-      return result;
-    })
-  );
+  /** @type {[number, number][]} */
+  const result = [];
+
+  for (let i = 0; i < size; i++) {
+    for (let j = i; j < size; j++) {
+      result.push([i, j]);
+    }
+  }
+
+  return result;
 }
 
 /**
