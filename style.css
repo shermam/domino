@@ -1,0 +1,34 @@
+div#main {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+button.piece {
+  all: unset;
+  display: flex;
+  width: 100px;
+  height: 50px;
+  border-radius: 8px;
+  justify-content: space-evenly;
+  align-items: center;
+  border: 2px solid black;
+  box-shadow: 5px 6px 14px #888888;
+  margin: 8px;
+}
+
+button.piece:hover {
+  background-color: #ccc;
+}
+
+button.piece div.divider {
+  background-color: #000;
+  width: 5px;
+  height: 80%;
+  border-radius: 3px;
+}
+
+button.piece p {
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: bolder;
+  font-size: 30px;
+}
