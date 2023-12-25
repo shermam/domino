@@ -2,10 +2,10 @@ const html = String.raw;
 
 /**
  *
- * @param {[number, number][]} pieces
  * @param {HTMLDivElement} divElement
+ * @returns {(pieces: [number, number][]) => void}
  */
-export function renderPieces(pieces, divElement) {
+export const renderPieces = (divElement) => (pieces) => {
   divElement.innerHTML = pieces
     .map(
       ([n1, n2]) => html`
@@ -17,4 +17,4 @@ export function renderPieces(pieces, divElement) {
       `
     )
     .join("");
-}
+};

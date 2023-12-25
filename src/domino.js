@@ -1,3 +1,29 @@
+export class Domino {
+  /**
+   *
+   * @param {number} size
+   * @param {(pieces: [number, number][]) => void} renderFn
+   * @param {number} players
+   */
+  constructor(size, renderFn, players) {
+    this.size = size;
+    this.renderFn = renderFn;
+    this.players = players;
+    this.shuffledPieces = shuffleArray(generatePieces());
+    this.distributedPieces = distributePieces(2, this.shuffledPieces);
+  }
+
+  /**
+   *
+   * @param {number} player
+   */
+  renderPlayerPiceces(player) {
+    const playerPieces = this.distributedPieces[player];
+    if (!playerPieces) throw new Error("Pieces for player 0 is not defined");
+    this.renderFn(playerPieces);
+  }
+}
+
 /**
  * Generate permutatin of pieces up to a size
  *

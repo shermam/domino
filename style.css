@@ -1,10 +1,12 @@
-div#main {
+div#main,
+div.table {
   display: flex;
   flex-wrap: wrap;
 }
 
 button.piece {
   all: unset;
+  background-color: #fff;
   display: flex;
   width: 100px;
   height: 50px;
@@ -31,4 +33,16 @@ button.piece p {
   font-family: Arial, Helvetica, sans-serif;
   font-weight: bolder;
   font-size: 30px;
+}
+
+div.table-container {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid black;
+  box-shadow: 5px 6px 14px #888888;
+  border-radius: 8px;
+  background-color: rgb(209, 209, 209);
 }
