@@ -2,25 +2,50 @@ export class Domino {
   /**
    *
    * @param {number} size
-   * @param {(pieces: [number, number][]) => void} renderFn
+   * @param {(pieces: [number, number][], play?: (player: number, pieceIndex: number) => void) => void} renderPlayerFn
+   * @param {(pieces: [number, number][]) => void} renderTableFn
    * @param {number} players
    */
-  constructor(size, renderFn, players) {
+  constructor(size, renderPlayerFn, renderTableFn, players) {
     this.size = size;
-    this.renderFn = renderFn;
+    this.renderPlayerFn = renderPlayerFn;
+    this.renderTableFn = renderTableFn;
     this.players = players;
     this.shuffledPieces = shuffleArray(generatePieces());
     this.distributedPieces = distributePieces(2, this.shuffledPieces);
+    /** @type {[number, number][]} */
+    this.table = [];
+
+    this.play = this.play.bind(this);
   }
 
   /**
    *
    * @param {number} player
    */
-  renderPlayerPiceces(player) {
+  renderPieces(player) {
     const playerPieces = this.distributedPieces[player];
     if (!playerPieces) throw new Error("Pieces for player 0 is not defined");
-    this.renderFn(playerPieces);
+    this.renderPlayerFn(playerPieces, this.play);
+    this.renderTableFn(this.table);
+  }
+
+  /**
+   *
+   * @param {number} player
+   * @param {number} pieceIndex
+   */
+  play(player, pieceIndex) {
+    const playerPieces = this.distributedPieces[player];
+    if (!playerPieces) throw new Error("Pieces for player is not defined");
+
+    const piece = playerPieces[pieceIndex];
+    if (!piece) throw new Error("Piece is not defined");
+
+    playerPieces.splice(pieceIndex, 1);
+    this.table.push(piece);
+
+    this.renderPieces(player);
   }
 }
 

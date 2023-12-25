@@ -20,6 +20,7 @@ button.piece {
 
 button.piece:hover {
   background-color: #ccc;
+  cursor: pointer;
 }
 
 button.piece div.divider {
