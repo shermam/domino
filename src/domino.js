@@ -15,6 +15,7 @@ export class Domino {
     this.distributedPieces = distributePieces(2, this.shuffledPieces);
     /** @type {[number, number][]} */
     this.table = [];
+    this.playerTurn = 0;
 
     this.play = this.play.bind(this);
   }
@@ -36,16 +37,42 @@ export class Domino {
    * @param {number} pieceIndex
    */
   play(player, pieceIndex) {
+    this.action(player, pieceIndex);
+    this.renderPieces(player);
+  }
+
+  /**
+   *
+   * @param {number} player
+   * @param {number} pieceIndex
+   */
+  action(player, pieceIndex) {
     const playerPieces = this.distributedPieces[player];
     if (!playerPieces) throw new Error("Pieces for player is not defined");
 
     const piece = playerPieces[pieceIndex];
     if (!piece) throw new Error("Piece is not defined");
 
+    //TODO: Maybe throw an error here
+    if (!this.checkPlay(player, piece)) return;
+
     playerPieces.splice(pieceIndex, 1);
     this.table.push(piece);
 
-    this.renderPieces(player);
+    // Move playerTurn to the next player
+    this.playerTurn = (player + 1) % this.players;
+  }
+  /**
+   *
+   * @param {number} player
+   * @param {[number, number]} piece
+   * @returns {boolean}
+   */
+  checkPlay(player, piece) {
+    if (this.playerTurn !== player) return false;
+    if (this.table.length === 0) return true;
+    
+    return true;
   }
 }
 
