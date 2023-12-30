@@ -54,7 +54,10 @@ export class Domino {
     if (!piece) throw new Error("Piece is not defined");
 
     //TODO: Maybe throw an error here
-    if (!this.checkPlay(player, piece)) return;
+    if (!this.checkPlay(player, piece)) {
+      alert("Invalid play");
+      return;
+    }
 
     playerPieces.splice(pieceIndex, 1);
     this.table.push(piece);
@@ -62,6 +65,7 @@ export class Domino {
     // Move playerTurn to the next player
     this.playerTurn = (player + 1) % this.players;
   }
+
   /**
    *
    * @param {number} player
@@ -71,8 +75,12 @@ export class Domino {
   checkPlay(player, piece) {
     if (this.playerTurn !== player) return false;
     if (this.table.length === 0) return true;
-    
-    return true;
+    if (this.table.at(0)?.[0] === piece[0]) return true;
+    if (this.table.at(0)?.[0] === piece[1]) return true;
+    if (this.table.at(-1)?.[1] === piece[0]) return true;
+    if (this.table.at(-1)?.[1] === piece[1]) return true;
+
+    return false;
   }
 }
 
