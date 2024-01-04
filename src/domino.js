@@ -1,18 +1,16 @@
 export class Domino {
   /**
    *
-   * @param {number} size
-   * @param {(pieces: [number, number][], play?: (player: number, pieceIndex: number) => void) => void} renderPlayerFn
+   * @param {[number, number][][]} pieces
+   * @param {(pieces: [number, number][], play?: (pieceIndex: number) => void) => void} renderPlayerFn
    * @param {(pieces: [number, number][]) => void} renderTableFn
    * @param {number} players
    */
-  constructor(size, renderPlayerFn, renderTableFn, players) {
-    this.size = size;
+  constructor(pieces, renderPlayerFn, renderTableFn, players) {
     this.renderPlayerFn = renderPlayerFn;
     this.renderTableFn = renderTableFn;
     this.players = players;
-    this.shuffledPieces = shuffleArray(generatePieces());
-    this.distributedPieces = distributePieces(2, this.shuffledPieces);
+    this.distributedPieces = pieces;
     /** @type {[number, number][]} */
     this.table = [];
     this.playerTurn = 0;
@@ -22,10 +20,9 @@ export class Domino {
 
   /**
    *
-   * @param {number} player
    */
-  renderPieces(player) {
-    const playerPieces = this.distributedPieces[player];
+  renderPieces() {
+    const playerPieces = this.distributedPieces[this.playerTurn];
     if (!playerPieces) throw new Error("Pieces for player 0 is not defined");
     this.renderPlayerFn(playerPieces, this.play);
     this.renderTableFn(this.table);
@@ -33,12 +30,11 @@ export class Domino {
 
   /**
    *
-   * @param {number} player
    * @param {number} pieceIndex
    */
-  play(player, pieceIndex) {
-    this.action(player, pieceIndex);
-    this.renderPieces(player);
+  play(pieceIndex) {
+    this.action(this.playerTurn, pieceIndex);
+    this.renderPieces();
   }
 
   /**
@@ -54,13 +50,25 @@ export class Domino {
     if (!piece) throw new Error("Piece is not defined");
 
     //TODO: Maybe throw an error here
-    if (!this.checkPlay(player, piece)) {
+    const checkResult = this.checkPlay(player, piece);
+    if (!checkResult.valid) {
       alert("Invalid play");
       return;
     }
 
     playerPieces.splice(pieceIndex, 1);
-    this.table.push(piece);
+
+    if (checkResult.flipped) {
+      const [first, second] = piece;
+      piece[0] = second;
+      piece[1] = first;
+    }
+
+    if (checkResult.matchBegin) {
+      this.table.unshift(piece);
+    } else {
+      this.table.push(piece);
+    }
 
     // Move playerTurn to the next player
     this.playerTurn = (player + 1) % this.players;
@@ -70,17 +78,55 @@ export class Domino {
    *
    * @param {number} player
    * @param {[number, number]} piece
-   * @returns {boolean}
+   * @returns {{
+   *  valid: boolean;
+   *  matchBegin: boolean;
+   *  flipped: boolean;
+   * }}
    */
   checkPlay(player, piece) {
-    if (this.playerTurn !== player) return false;
-    if (this.table.length === 0) return true;
-    if (this.table.at(0)?.[0] === piece[0]) return true;
-    if (this.table.at(0)?.[0] === piece[1]) return true;
-    if (this.table.at(-1)?.[1] === piece[0]) return true;
-    if (this.table.at(-1)?.[1] === piece[1]) return true;
+    if (this.playerTurn !== player)
+      return {
+        valid: false,
+        matchBegin: false,
+        flipped: false,
+      };
+    if (this.table.length === 0)
+      return {
+        valid: true,
+        matchBegin: false,
+        flipped: false,
+      };
+    if (this.table.at(0)?.[0] === piece[0])
+      return {
+        valid: true,
+        matchBegin: true,
+        flipped: true,
+      };
+    if (this.table.at(0)?.[0] === piece[1])
+      return {
+        valid: true,
+        matchBegin: true,
+        flipped: false,
+      };
+    if (this.table.at(-1)?.[1] === piece[0])
+      return {
+        valid: true,
+        matchBegin: false,
+        flipped: false,
+      };
+    if (this.table.at(-1)?.[1] === piece[1])
+      return {
+        valid: true,
+        matchBegin: false,
+        flipped: true,
+      };
 
-    return false;
+    return {
+      valid: false,
+      matchBegin: false,
+      flipped: false,
+    };
   }
 }
 

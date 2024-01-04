@@ -1,6 +1,11 @@
-import { it, describe } from "node:test";
+import { it, describe, beforeEach, afterEach } from "node:test";
 import assert from "node:assert";
-import { Domino, distributePieces, generatePieces } from "./domino.js";
+import {
+  Domino,
+  distributePieces,
+  generatePieces,
+  shuffleArray,
+} from "./domino.js";
 
 describe("distributePieces", () => {
   it("creates the an array of pieces for each player", () => {
@@ -33,6 +38,17 @@ describe("generatePieces", () => {
 });
 
 describe("Domino", () => {
+  let oldAlert = globalThis.alert;
+
+  beforeEach(() => {
+    oldAlert = globalThis.alert;
+    globalThis.alert = () => {};
+  });
+
+  afterEach(() => {
+    globalThis.alert = oldAlert;
+  });
+
   describe(".checkPlay", () => {
     /**
      * @type {{
@@ -40,7 +56,11 @@ describe("Domino", () => {
      *  table: [number, number][];
      *  piece: [number, number];
      *  player: number;
-     *  want: boolean;
+     *  want: {
+     *    valid: boolean;
+     *    matchBegin: boolean;
+     *    flipped: boolean;
+     *  };
      * }[]}
      */
     const cases = [
@@ -49,14 +69,22 @@ describe("Domino", () => {
         table: [],
         piece: [0, 0],
         player: 1,
-        want: false,
+        want: {
+          valid: false,
+          matchBegin: false,
+          flipped: false,
+        },
       },
       {
         description: "returns true when table is empty",
         table: [],
         piece: [0, 0],
         player: 0,
-        want: true,
+        want: {
+          valid: true,
+          matchBegin: false,
+          flipped: false,
+        },
       },
       {
         description:
@@ -67,7 +95,11 @@ describe("Domino", () => {
         ],
         piece: [0, 3],
         player: 0,
-        want: true,
+        want: {
+          valid: true,
+          matchBegin: true,
+          flipped: true,
+        },
       },
       {
         description:
@@ -78,7 +110,11 @@ describe("Domino", () => {
         ],
         piece: [3, 0],
         player: 0,
-        want: true,
+        want: {
+          valid: true,
+          matchBegin: true,
+          flipped: false,
+        },
       },
       {
         description:
@@ -89,7 +125,11 @@ describe("Domino", () => {
         ],
         piece: [2, 3],
         player: 0,
-        want: true,
+        want: {
+          valid: true,
+          matchBegin: false,
+          flipped: false,
+        },
       },
       {
         description:
@@ -100,7 +140,11 @@ describe("Domino", () => {
         ],
         piece: [3, 2],
         player: 0,
-        want: true,
+        want: {
+          valid: true,
+          matchBegin: false,
+          flipped: true,
+        },
       },
       {
         description:
@@ -111,20 +155,117 @@ describe("Domino", () => {
         ],
         piece: [3, 3],
         player: 0,
-        want: false,
+        want: {
+          valid: false,
+          matchBegin: false,
+          flipped: false,
+        },
       },
     ];
 
     cases.forEach(({ description, table, piece, player, want }) => {
       it(description, () => {
         const mockRenderFn = () => {};
-        const domino = new Domino(4, mockRenderFn, mockRenderFn, 2);
+        const players = 2;
+        const size = 4;
+        const pieces = distributePieces(
+          players,
+          shuffleArray(generatePieces(size))
+        );
+        const domino = new Domino(pieces, mockRenderFn, mockRenderFn, players);
         domino.table.push(...table);
 
         const result = domino.checkPlay(player, piece);
 
-        assert.equal(result, want);
+        assert.deepEqual(result, want);
       });
     });
+  });
+
+  describe(".action", () => {
+    /**
+     * @type {{
+     *  description: string;
+     *  players: number;
+     *  table: [number, number][];
+     *  pieces: [number, number][][];
+     *  pieceIndex: number;
+     *  wantTable: [number, number][];
+     *  wantPieces: [number, number][][];
+     * }[]}
+     */
+    const cases = [
+      {
+        description: "adds a piece to the table",
+        players: 2,
+        table: [],
+        pieces: [[[0, 0]], []],
+        pieceIndex: 0,
+        wantTable: [[0, 0]],
+        wantPieces: [[], []],
+      },
+      {
+        description:
+          "does nothing when there is no matching piece at the ends of the table",
+        players: 2,
+        table: [[0, 1]],
+        pieces: [[[2, 2]], []],
+        pieceIndex: 0,
+        wantTable: [[0, 1]],
+        wantPieces: [[[2, 2]], []],
+      },
+      {
+        description: "adds a piece matching one of the ends of the table",
+        players: 2,
+        table: [[0, 2]],
+        pieces: [[[2, 1]], []],
+        pieceIndex: 0,
+        wantTable: [
+          [0, 2],
+          [2, 1],
+        ],
+        wantPieces: [[], []],
+      },
+      {
+        description: "adds a piece matching one of the ends of the table",
+        players: 2,
+        table: [[0, 2]],
+        pieces: [[[0, 1]], []],
+        pieceIndex: 0,
+        wantTable: [
+          [1, 0],
+          [0, 2],
+        ],
+        wantPieces: [[], []],
+      },
+    ];
+
+    cases.forEach(
+      ({
+        description,
+        players,
+        table,
+        pieces,
+        pieceIndex,
+        wantTable,
+        wantPieces,
+      }) => {
+        it(description, () => {
+          const mockRenderFn = () => {};
+          const domino = new Domino(
+            pieces,
+            mockRenderFn,
+            mockRenderFn,
+            players
+          );
+          domino.table.push(...table);
+
+          domino.action(0, pieceIndex);
+
+          assert.deepEqual(domino.table, wantTable);
+          assert.deepEqual(domino.distributedPieces, wantPieces);
+        });
+      }
+    );
   });
 });

@@ -3,7 +3,7 @@ const html = String.raw;
 /**
  *
  * @param {HTMLDivElement} divElement
- * @returns {(pieces: [number, number][], play?: (player: number, pieceIndex: number) => void) => void}
+ * @returns {(pieces: [number, number][], play?: (pieceIndex: number) => void) => void}
  */
 export const renderPieces = (divElement) => (pieces, play) => {
   divElement.innerHTML = pieces
@@ -31,7 +31,7 @@ export const renderPieces = (divElement) => (pieces, play) => {
       const id = +button.id;
 
       // Fixing player 0 as the action taker for now
-      play(0, id);
+      play(id);
     });
   });
 };
