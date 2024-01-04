@@ -34,72 +34,97 @@ describe("generatePieces", () => {
 
 describe("Domino", () => {
   describe(".checkPlay", () => {
-    it("returns false when it is not the player's turn", () => {
-      const mockRenderFn = () => {};
-      const domino = new Domino(4, mockRenderFn, mockRenderFn, 2);
+    /**
+     * @type {{
+     *  description: string;
+     *  table: [number, number][];
+     *  piece: [number, number];
+     *  player: number;
+     *  want: boolean;
+     * }[]}
+     */
+    const cases = [
+      {
+        description: "returns false when it is not the player's turn",
+        table: [],
+        piece: [0, 0],
+        player: 1,
+        want: false,
+      },
+      {
+        description: "returns true when table is empty",
+        table: [],
+        piece: [0, 0],
+        player: 0,
+        want: true,
+      },
+      {
+        description:
+          "returns true when first number of the first piece on the table matches the first number of arg piece",
+        table: [
+          [0, 1],
+          [1, 2],
+        ],
+        piece: [0, 3],
+        player: 0,
+        want: true,
+      },
+      {
+        description:
+          "returns true when first number of the first piece on the table matches the last number of arg piece",
+        table: [
+          [0, 1],
+          [1, 2],
+        ],
+        piece: [3, 0],
+        player: 0,
+        want: true,
+      },
+      {
+        description:
+          "returns true when last number of the last piece on the table matches the first number of arg piece",
+        table: [
+          [0, 1],
+          [1, 2],
+        ],
+        piece: [2, 3],
+        player: 0,
+        want: true,
+      },
+      {
+        description:
+          "returns true when last number of the last piece on the table matches the last number of arg piece",
+        table: [
+          [0, 1],
+          [1, 2],
+        ],
+        piece: [3, 2],
+        player: 0,
+        want: true,
+      },
+      {
+        description:
+          "returns false when no number of the arg piece matches either end of the table",
+        table: [
+          [0, 1],
+          [1, 2],
+        ],
+        piece: [3, 3],
+        player: 0,
+        want: false,
+      },
+    ];
 
-      const result = domino.checkPlay(1, [0, 0]);
+    cases.forEach(({ description, table, piece, player, want }) => {
+      it(description, () => {
+        const mockRenderFn = () => {};
+        const domino = new Domino(4, mockRenderFn, mockRenderFn, 2);
+        domino.table.push(...table);
 
-      assert.equal(result, false);
-    });
+        const result = domino.checkPlay(player, piece);
 
-    it("returns true when table is empty", () => {
-      const mockRenderFn = () => {};
-      const domino = new Domino(4, mockRenderFn, mockRenderFn, 2);
-
-      const result = domino.checkPlay(0, [0, 0]);
-
-      assert.equal(result, true);
-    });
-
-    it("returns true when first number of the first piece on the table matches the first number of arg piece", () => {
-      const mockRenderFn = () => {};
-      const domino = new Domino(4, mockRenderFn, mockRenderFn, 2);
-      domino.table.push([0, 1], [1, 2]);
-
-      const result = domino.checkPlay(0, [0, 3]);
-
-      assert.equal(result, true);
-    });
-
-    it("returns true when first number of the first piece on the table matches the last number of arg piece", () => {
-      const mockRenderFn = () => {};
-      const domino = new Domino(4, mockRenderFn, mockRenderFn, 2);
-      domino.table.push([0, 1], [1, 2]);
-
-      const result = domino.checkPlay(0, [3, 0]);
-
-      assert.equal(result, true);
-    });
-
-    it("returns true when last number of the last piece on the table matches the first number of arg piece", () => {
-      const mockRenderFn = () => {};
-      const domino = new Domino(4, mockRenderFn, mockRenderFn, 2);
-      domino.table.push([0, 1], [1, 2]);
-
-      const result = domino.checkPlay(0, [2, 3]);
-
-      assert.equal(result, true);
-    });
-
-    it("returns true when last number of the last piece on the table matches the last number of arg piece", () => {
-      const mockRenderFn = () => {};
-      const domino = new Domino(4, mockRenderFn, mockRenderFn, 2);
-      domino.table.push([0, 1], [1, 2]);
-
-      const result = domino.checkPlay(0, [3, 2]);
-
-      assert.equal(result, true);
-    });
-
-    it("returns false when no number of the arg piece matches either end of the table", () => {
-      const mockRenderFn = () => {};
-      const domino = new Domino(4, mockRenderFn, mockRenderFn, 2);
-      domino.table.push([0, 1], [1, 2]);
-
-      const result = domino.checkPlay(0, [3, 3]);
-
-      assert.equal(result, false);
+        assert.equal(result, want);
+      });
     });
   });
 });
